@@ -1,0 +1,4 @@
+member_no,first_name,last_name,birthdate,mobile,email,status,plan_code
+100001,Juan,Dela Cruz,1985-04-12,09171234567,juan.delacruz@example.com,ACTIVE,GOLD
+100002,Maria,Santos,1990-08-21,09181234567,maria.santos@example.com,ACTIVE,SILVER
+100003,Pedro,Reyes,1978-02-03,09191234567,pedro.reyes@example.com,INACTIVE,GOLD
