@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: healthpass-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: healthpass
+      POSTGRES_PASSWORD: healthpass
+      POSTGRES_DB: healthpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U healthpass -d healthpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: healthpass-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  backend-api:
+    build:
+      context: ./backend-api
+    container_name: healthpass-backend-api
+    restart: unless-stopped
+    env_file:
+      - ./backend-api/.env.example
+    environment:
+      DATABASE_URL: postgresql://healthpass:healthpass@postgres:5432/healthpass
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: local-development-secret-change-me
+      QR_TOKEN_TTL_SECONDS: 30
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  postgres_data:
